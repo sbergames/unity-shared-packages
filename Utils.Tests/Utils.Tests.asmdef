@@ -1,0 +1,21 @@
+{
+    "name": "Utils.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0157d893af3bf5447a0cfe6ba2ab1512"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "System.Buffers.dll",
+        "System.Memory.dll"
+    ],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

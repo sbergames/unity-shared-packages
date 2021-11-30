@@ -1,0 +1,3 @@
+-warnaserror+
+#-warnaserror-:8618
+-nullable:enable

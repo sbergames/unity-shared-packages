@@ -1,0 +1,16 @@
+{
+    "name": "SberGames.SystemLibraries.Editor.Tests",
+    "rootNamespace": "SberGames.SystemLibraries.Editor.Tests",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

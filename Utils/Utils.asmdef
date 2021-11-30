@@ -1,0 +1,19 @@
+{
+    "name": "Utils",
+    "rootNamespace": "SberGames",
+    "references": [
+        "GUID:f92488eacde9187488779bae44afdacf"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "System.Buffers.dll",
+        "System.Memory.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": true
+}
