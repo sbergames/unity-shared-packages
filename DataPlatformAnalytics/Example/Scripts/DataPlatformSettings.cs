@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace SberGames.DataPlatform.Example
 {
-    [CreateAssetMenu(fileName = "DataPlatformSettings", menuName = "SberGames/Analytics/DataPlatformSettings")]
+    [CreateAssetMenu(fileName = "DataPlatformSettings", menuName = "SberGames/Analytics/Example/DataPlatformSettingsExample")]
     public class DataPlatformSettings : ScriptableObject
     {
         [SerializeField] private string apiKeyDev = default;

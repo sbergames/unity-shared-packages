@@ -24,7 +24,7 @@ namespace SberGames.DataPlatform.Example
         
         private void Initialize()
         {
-            var dataPlatformSettings = Resources.Load<DataPlatformSettings>("DataPlatformSettings");
+            var dataPlatformSettings = Resources.Load<DataPlatformSettings>("DataPlatformSettingsExample");
             
             dataPlatformAnalytics = new DataPlatformAnalytics();
             dataPlatformAnalytics.Initialize(dataPlatformSettings.ApiKey, dataPlatformSettings.BaseUri);
