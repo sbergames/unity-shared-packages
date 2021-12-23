@@ -34,7 +34,7 @@ namespace SberGames.DataPlatform.Core
             
             LoadSavedData(directoryPath);
 
-            string fileName = DateTime.UtcNow.ToString("d") + "_" + GUIDGenerator.Generate();
+            string fileName = DateTime.UtcNow.ToString("yyyy-MM-dd") + "_" + GUIDGenerator.Generate();
             cacheWriter = new ParallelFileWriter();
             cacheWriter.Open(Path.Combine(directoryPath, fileName + EventsFile));
             
