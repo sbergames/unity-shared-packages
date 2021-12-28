@@ -50,51 +50,55 @@ namespace SberGames.DataPlatform.Core.Net
         {
             HttpStatusCode? statusCode = default;
 
-            using CancellationTokenSource headersTimeoutCancellationTokenSource = new CancellationTokenSource(TimeoutMs);
-
-            try
+            using (CancellationTokenSource headersTimeoutCancellationTokenSource =
+                new CancellationTokenSource(TimeoutMs))
             {
-                using CancellationTokenSource getHeadersCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                    CancellationToken.None, // TODO
-                    headersTimeoutCancellationTokenSource.Token);
-
-                using HttpResponseMessage httpResponse = await httpClient.SendAsync(
-                    requestMessage,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    getHeadersCancellationTokenSource.Token).ConfigureAwait(false);
-                
-                headersTimeoutCancellationTokenSource.CancelAfter(-1);
-
-                statusCode = httpResponse.StatusCode;
-
-                if (TryFastExit(httpResponse, out SendingResult fastResult))
+                try
                 {
-                    return fastResult;
-                }
+                    using (HttpResponseMessage httpResponse = await httpClient.SendAsync(
+                        requestMessage,
+                        HttpCompletionOption.ResponseHeadersRead,
+                        headersTimeoutCancellationTokenSource.Token).ConfigureAwait(false))
+                    {
+                        headersTimeoutCancellationTokenSource.CancelAfter(-1);
 
-                return new SendingResult((int)statusCode);
-            }
-            catch (HttpRequestException httpRequestException)
-            {
-                return new SendingResult((int?)statusCode, httpRequestException.ToString(), SendingResultStatus.IsNetworkError);
-            }
-            catch (TimeoutException timeoutException)
-            {
-                return new SendingResult((int?)statusCode, $"Timeout exception. This treated as an error.\n" + timeoutException, SendingResultStatus.IsTimeout);
-            }
-            catch (OperationCanceledException)
-            {
-                if (headersTimeoutCancellationTokenSource.IsCancellationRequested)
-                {
-                    return new SendingResult((int?)statusCode, $"Cancellation requested.", SendingResultStatus.IsTimeout);
+                        statusCode = httpResponse.StatusCode;
+
+                        if (TryFastExit(httpResponse, out SendingResult fastResult))
+                        {
+                            return fastResult;
+                        }
+
+                        return new SendingResult((int) statusCode);
+                    }
                 }
-                else
+                catch (HttpRequestException httpRequestException)
                 {
-                    return new SendingResult((int?)statusCode, "Operation cancelled from user code.", SendingResultStatus.IsCancelled);
+                    return new SendingResult((int?) statusCode, httpRequestException.ToString(),
+                        SendingResultStatus.IsNetworkError);
                 }
-            }
-            finally
-            {
+                catch (TimeoutException timeoutException)
+                {
+                    return new SendingResult((int?) statusCode,
+                        $"Timeout exception. This treated as an error.\n" + timeoutException,
+                        SendingResultStatus.IsTimeout);
+                }
+                catch (OperationCanceledException)
+                {
+                    if (headersTimeoutCancellationTokenSource.IsCancellationRequested)
+                    {
+                        return new SendingResult((int?) statusCode, $"Cancellation requested.",
+                            SendingResultStatus.IsTimeout);
+                    }
+                    else
+                    {
+                        return new SendingResult((int?) statusCode, "Operation cancelled from user code.",
+                            SendingResultStatus.IsCancelled);
+                    }
+                }
+                finally
+                {
+                }
             }
         }
 
