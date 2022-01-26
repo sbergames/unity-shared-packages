@@ -1,0 +1,20 @@
+{
+    "name": "DataPlatformAnalytics.Tests",
+    "rootNamespace": "",
+    "references": [
+        "GUID:b5c08f4d490cc274f81a3799bfabdab1",
+        "GUID:0acc523941302664db1f4e527237feb3",
+        "GUID:27619889b8ba8c24980f49ee34dbb44a"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
