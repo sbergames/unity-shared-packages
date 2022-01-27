@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 33e0b0e927058a142aadc6d2afd6f706, type: 3}
-  m_Name: DataPlatformSettings
+  m_Name: DataPlatformSettingsExample
   m_EditorClassIdentifier: 
   apiKeyDev: 
   apiKeyProd: 
