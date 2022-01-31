@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using SberGames.DataPlatform.Core.Net;
 using UnityEngine;
@@ -9,7 +10,8 @@ namespace SberGames.DataPlatform.Core
     public class DataPlatformAnalyticsImpl : IDisposable
     {
         private const int MaxEventAtOnce = 10;
-
+        private const int TimeoutBetweenResend = 10_000;
+        
         private const string SessionIdKey = "session_id";
         private const string FirstLaunchKey = "first_launch";
 
@@ -18,9 +20,14 @@ namespace SberGames.DataPlatform.Core
         
         private JsonEventDataSerializer jsonEventDataSerializer;
 
-        private IEventSender eventSender;
-        private IEventCache eventCache;
-        private IEventBuilder eventBuilder;
+        private IEventSender eventSender = null;
+        private IEventCache eventCache = null;
+        private IEventBuilder eventBuilder = null;
+
+        private int sendingErrorCountFromLastSuccess = 0;
+
+        private int CurrentTimeoutBetweenResend => TimeoutBetweenResend * 
+                                                   (sendingErrorCountFromLastSuccess < 3 ? sendingErrorCountFromLastSuccess + sendingErrorCountFromLastSuccess + 1 : 6);
         
         public void Initialize(IEventSender _eventSender)
         {
@@ -28,12 +35,15 @@ namespace SberGames.DataPlatform.Core
             userParams = new Dictionary<string, string>();
             eventSender = _eventSender;
             eventCache = new FileEventCache();
-            eventCache.OnUnsentEventsLoaded += OnUnsentEventsLoaded;
             eventBuilder = new DefaultEventBuilder();
+
+            StartResendProcess();
         }
 
         public void StartSession()
         {
+            sendingErrorCountFromLastSuccess = 0;
+            
             SetUserProperty(SessionIdKey, GUIDGenerator.Generate());
 
             if (PlayerPrefs.GetInt(FirstLaunchKey, 0) == 0)
@@ -75,9 +85,10 @@ namespace SberGames.DataPlatform.Core
         public void Dispose()
         {
             eventCache?.Dispose();
+            eventCache = null;
         }
         
-        private async void Sending(string eventId, string eventData)
+        private async Task<bool> Sending(string eventId, string eventData)
         {
             locked.Add(eventId);
             
@@ -87,16 +98,20 @@ namespace SberGames.DataPlatform.Core
             
             if (result.IsSuccess)
             {
+                sendingErrorCountFromLastSuccess = 0;
                 eventCache.Remove(eventId);
             }
             else
             {
+                sendingErrorCountFromLastSuccess++;
                 Debug.LogWarning($"DataPlatform Analytics event sending error: {result.Error}");
-                RetrySending();
+                return false;
             }
+
+            return true;
         }
         
-        private async Task Sending(List<string> eventIds, List<string> eventDatas)
+        private async Task<bool> Sending(List<string> eventIds, List<string> eventDatas)
         {
             locked.AddRange(eventIds);
             
@@ -109,6 +124,7 @@ namespace SberGames.DataPlatform.Core
             
             if (result.IsSuccess)
             {
+                sendingErrorCountFromLastSuccess = 0;
                 foreach (var eventId in eventIds)
                 {
                     eventCache.Remove(eventId);
@@ -116,43 +132,61 @@ namespace SberGames.DataPlatform.Core
             }
             else
             {
+                sendingErrorCountFromLastSuccess++;
                 Debug.LogWarning($"DataPlatform Analytics event sending error: {result.Error}");
-                RetrySending();
+                return false;
             }
+
+            return true;
         }
 
-        private async void RetrySending()
+        private async void StartResendProcess()
         {
-            List<string> eventIds = new List<string>();
-            List<string> eventDatas = new List<string>();
-
-            var enumerator = eventCache.UnsentEvents().GetEnumerator();
-            while (enumerator.MoveNext())
+            while (eventCache != null)
             {
-                if (!locked.Contains(enumerator.Current.Key))
+                await Task.Delay(CurrentTimeoutBetweenResend);
+
+                bool isNeedNextTry = false;
+                do
                 {
-                    eventIds.Add(enumerator.Current.Key);
-                    eventDatas.Add(enumerator.Current.Value);
-                    
-                    if (eventIds.Count >= MaxEventAtOnce)
+                    isNeedNextTry = await TrySendCashedBatch();
+                } while (isNeedNextTry);
+            }
+        }
+        
+        private async Task<bool> TrySendCashedBatch()
+        {
+            if (eventCache != null && eventCache.UnsentEvents().Count() > 0)
+            {
+                List<string> eventIds = null;
+                List<string> eventDatas = null;
+
+                var enumerator = eventCache.UnsentEvents().GetEnumerator();
+                while (enumerator.MoveNext())
+                {
+                    eventIds = new List<string>();
+                    eventDatas = new List<string>();
+                
+                    if (!locked.Contains(enumerator.Current.Key))
                     {
-                        await Sending(eventIds, eventDatas);
-                        eventIds.Clear();
-                        eventDatas.Clear();
+                        eventIds.Add(enumerator.Current.Key);
+                        eventDatas.Add(enumerator.Current.Value);
+
+                        if (eventIds.Count() >= MaxEventAtOnce)
+                        {
+                            break;
+                        }
                     }
                 }
-            }
-            enumerator.Dispose();
+                enumerator.Dispose();
 
-            if (eventIds.Count > 0)
-            {
-                await Sending(eventIds, eventDatas);
+                if (eventIds != null && eventIds.Count > 0)
+                {
+                    return await Sending(eventIds, eventDatas);
+                }
             }
-        }
-
-        private void OnUnsentEventsLoaded()
-        {
-            RetrySending();
+            
+            return false;
         }
     }
 }
