@@ -14,7 +14,7 @@ namespace SberGames.DataPlatform
 //#if UNITY_EDITOR && UNITY_ANDROID
             var eventSender = new HttpEventSender();
             eventSender.Initialization(_apiKey, _host);
-            dataPlatformAnalyticsImpl = new DotNetDataPlatformAnalyticsImpl(eventSender);
+            dataPlatformAnalyticsImpl = new DataPlatformAnalyticsDotNetImpl(eventSender);
 //#elif UNITY_IOS
             //dataPlatformAnalyticsImpl = new DataPlatformAnalyticsIOS(_apiKey, _host);
 //#endif
