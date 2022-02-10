@@ -1,8 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-namespace SberGames.DataPlatform.Example
+namespace SberGames.DataPlatform.Demo
 {
     public class DataPlatformAnalyticsWrapper
     {

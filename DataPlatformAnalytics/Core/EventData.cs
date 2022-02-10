@@ -33,5 +33,21 @@ namespace SberGames.DataPlatform
             
             return this;
         }
+
+        public bool IsData(string key)
+        { 
+            return data.ContainsKey(key);
+        }
+
+        public bool IsDatas(string[] keys)
+        {
+            foreach (var key in keys)
+            {
+                if (!data.ContainsKey(key)) {
+                    return false;
+                }
+            }
+            return true;
+        }
     }
 }
