@@ -6,15 +6,18 @@ namespace SberGames.DataPlatform
 {
     public class DataPlatformAnalytics : IDataPlatformAnalytics
     {
-        private DataPlatformAnalyticsImpl dataPlatformAnalyticsImpl = null;
+        private IDataPlatformAnalyticsImpl dataPlatformAnalyticsImpl = null;
 
         public void Initialize(string _apiKey, string _host)
         {
+
+//#if UNITY_EDITOR && UNITY_ANDROID
             var eventSender = new HttpEventSender();
             eventSender.Initialization(_apiKey, _host);
-
-            dataPlatformAnalyticsImpl = new DataPlatformAnalyticsImpl();
-            dataPlatformAnalyticsImpl.Initialize(eventSender);
+            dataPlatformAnalyticsImpl = new DataPlatformAnalyticsDotNetImpl(eventSender);
+//#elif UNITY_IOS
+            //dataPlatformAnalyticsImpl = new DataPlatformAnalyticsIOS(_apiKey, _host);
+//#endif
 
             var go = new GameObject();
             var dataPlatformUnityObject = go.AddComponent<DataPlatformUnityObject>();

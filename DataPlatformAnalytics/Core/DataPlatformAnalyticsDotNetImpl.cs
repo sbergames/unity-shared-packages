@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace SberGames.DataPlatform.Core
 {
-    public class DataPlatformAnalyticsImpl : IDisposable
+    public class DataPlatformAnalyticsDotNetImpl : IDataPlatformAnalyticsImpl
     {
         private const int MaxEventAtOnce = 10;
         private const int TimeoutBetweenResend = 10_000;
@@ -28,8 +28,8 @@ namespace SberGames.DataPlatform.Core
 
         private int CurrentTimeoutBetweenResend => TimeoutBetweenResend * 
                                                    (sendingErrorCountFromLastSuccess < 3 ? sendingErrorCountFromLastSuccess + sendingErrorCountFromLastSuccess + 1 : 6);
-        
-        public void Initialize(IEventSender _eventSender)
+
+        public DataPlatformAnalyticsDotNetImpl(IEventSender _eventSender)
         {
             jsonEventDataSerializer = new JsonEventDataSerializer();
             userParams = new Dictionary<string, string>();
