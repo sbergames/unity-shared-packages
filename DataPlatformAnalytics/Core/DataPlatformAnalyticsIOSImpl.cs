@@ -35,6 +35,11 @@ namespace SberGames.DataPlatform.Core
             SetUserProperty("user_id", "example_user");
         }
 
+        public void IsGetDeviceId(bool isGet)
+        {
+            eventBuilder.IsGetDeviceId(isGet);
+        }
+
         public void StartSession()
         {
             SetUserProperty(SessionIdKey, GUIDGenerator.Generate());

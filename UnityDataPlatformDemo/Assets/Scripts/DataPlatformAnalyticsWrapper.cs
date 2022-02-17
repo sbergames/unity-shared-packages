@@ -28,6 +28,7 @@ namespace SberGames.DataPlatform.Demo
             dataPlatformAnalytics = new DataPlatformAnalytics();
             dataPlatformAnalytics.Initialize(apiKey, baseUri);
             dataPlatformAnalytics.SetUserProperty("user_id", "example_user");
+            dataPlatformAnalytics.IsGetDeviceId(true);
         }
 
         

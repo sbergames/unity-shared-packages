@@ -40,6 +40,11 @@ namespace SberGames.DataPlatform.Core
             StartResendProcess();
         }
 
+        public void IsGetDeviceId(bool isGet)
+        {
+            eventBuilder.IsGetDeviceId(isGet);
+        }
+
         public void StartSession()
         {
             sendingErrorCountFromLastSuccess = 0;

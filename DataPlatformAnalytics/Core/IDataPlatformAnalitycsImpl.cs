@@ -14,5 +14,7 @@ namespace SberGames.DataPlatform.Core
         void SendEvent(EventData eventData);
 
         void StartSession();
+
+        void IsGetDeviceId(bool isGet);
     }
 }
