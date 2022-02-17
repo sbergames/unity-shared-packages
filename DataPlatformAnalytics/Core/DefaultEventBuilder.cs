@@ -17,6 +17,7 @@ namespace SberGames.DataPlatform.Core
         private const string DeviceOSKey = "device_OS";
         private const string AppBundleKey = "app_bundle_id";
         private const string DeviceUniqueId = "device_id";
+        private const string LocalDatetime = "local_datetime";
 
         public void Build(ref EventData eventData, Dictionary<string, string> userParams)
         {
@@ -65,6 +66,7 @@ namespace SberGames.DataPlatform.Core
             data.AddData(EventData.EventIdKey, GUIDGenerator.Generate());
             
             data.AddData(EventTimestampKey, ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds().ToString());
+            data.AddData(LocalDatetime, DateTime.Now.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"));
             data.AddData(ClientVersionKey, Application.version);
             data.AddData(UserPseudoIdKey, GetPseudoUserId());
             data.AddData(AppBundleKey, Application.identifier);
