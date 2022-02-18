@@ -8,6 +8,8 @@ namespace SberGames.DataPlatform
         void SetUserProperty(string key, string value);
         
         void SendEvent(EventData data);
+
+        void IsGetDeviceId(bool isGet);
     }
 }
 

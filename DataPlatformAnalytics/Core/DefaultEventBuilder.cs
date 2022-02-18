@@ -17,6 +17,9 @@ namespace SberGames.DataPlatform.Core
         private const string DeviceOSKey = "device_OS";
         private const string AppBundleKey = "app_bundle_id";
         private const string DeviceUniqueId = "device_id";
+        private const string LocalDatetime = "local_datetime";
+
+        private bool isGetDeviceId = true;
 
         public void Build(ref EventData eventData, Dictionary<string, string> userParams)
         {
@@ -37,6 +40,11 @@ namespace SberGames.DataPlatform.Core
             Validate(eventData);
         }
 
+        public void IsGetDeviceId(bool isGet)
+        {
+            isGetDeviceId = isGet;
+        }
+
         private void Validate(EventData data)
         {
             if (!data.IsData(EventNameKey))
@@ -49,9 +57,14 @@ namespace SberGames.DataPlatform.Core
                 Debug.Log($"Отсутсвует ключ {SessionIdKey}. Для создания {SessionIdKey} необходимо вызвать метод StartSession()");
             }
 
+            if (isGetDeviceId && !data.IsData(DeviceUniqueId))
+            {
+                Debug.Log($"Отсутствует ключ {DeviceUniqueId}");
+            }
+
             string[] key_list = {
                 EventTimestampKey, ClientVersionKey, PlatformKey, UserPseudoIdKey, DeviceLanguageKey,
-                DeviceHwModelKey, DeviceHwModelKey, DeviceOSKey, AppBundleKey, DeviceUniqueId
+                DeviceHwModelKey, DeviceHwModelKey, DeviceOSKey, AppBundleKey
             };
 
             if (!data.IsDatas(key_list))
@@ -65,13 +78,14 @@ namespace SberGames.DataPlatform.Core
             data.AddData(EventData.EventIdKey, GUIDGenerator.Generate());
             
             data.AddData(EventTimestampKey, ((DateTimeOffset)DateTime.UtcNow).ToUnixTimeMilliseconds().ToString());
+            data.AddData(LocalDatetime, DateTime.Now.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss"));
             data.AddData(ClientVersionKey, Application.version);
             data.AddData(UserPseudoIdKey, GetPseudoUserId());
             data.AddData(AppBundleKey, Application.identifier);
             data.AddData(DeviceOSKey, SystemInfo.operatingSystem);
             data.AddData(DeviceHwModelKey, SystemInfo.deviceModel);
             data.AddData(DeviceLanguageKey, LanguageHelper.Get2LetterISOCodeFromSystemLanguage());
-            data.AddData(DeviceUniqueId, SystemInfo.deviceUniqueIdentifier.Replace("-", ""));
+            if (isGetDeviceId) data.AddData(DeviceUniqueId, GetDeviceId());
             
             #if UNITY_EDITOR
                 data.AddData(PlatformKey, "editor");
@@ -81,7 +95,12 @@ namespace SberGames.DataPlatform.Core
                 data.AddData(PlatformKey, "android");
             #endif
         }
-        
+
+        private string GetDeviceId()
+        {
+            return SystemInfo.deviceUniqueIdentifier.Replace("-", "");
+        }
+
         private string GetPseudoUserId()
         {
 	        var userPseudoId = PlayerPrefs.GetString(UserPseudoIdKey, "");

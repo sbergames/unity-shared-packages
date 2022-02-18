@@ -23,7 +23,12 @@ namespace SberGames.DataPlatform
             var dataPlatformUnityObject = go.AddComponent<DataPlatformUnityObject>();
             dataPlatformUnityObject.Initialize(dataPlatformAnalyticsImpl);
         }
-        
+
+        public void IsGetDeviceId(bool isGet)
+        {
+            dataPlatformAnalyticsImpl.IsGetDeviceId(isGet);
+        }
+
         public void SetUserProperty(string key, string value)
         {
             dataPlatformAnalyticsImpl.SetUserProperty(key, value);
