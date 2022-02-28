@@ -12,6 +12,7 @@ final class DBService {
     
     private let modelName = "DBModel"
     private let entityName = "Event"
+    private let maxEventAtOnce: Int = 10
     
     private lazy var managedObjectModel: NSManagedObjectModel = {
         let  managedObjectModel = NSManagedObjectModel()
@@ -81,12 +82,12 @@ final class DBService {
     }
     
     
-    public func dataEventList(fetchLimit: Int) -> [EventItem]? {
+    public func dataEventList() -> [EventItem]? {
         let request: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: entityName)
         request.entity = NSEntityDescription.entity(forEntityName: entityName, in: context)
         let departmentSort = NSSortDescriptor(key: "date", ascending: true)
         request.sortDescriptors = [departmentSort]
-        request.fetchLimit = fetchLimit
+        request.fetchLimit = maxEventAtOnce
         
         var array: [EventItem] = []
         
@@ -103,6 +104,17 @@ final class DBService {
         }
         
         return array
+    }
+    
+    public func countEventList() -> Int {
+        let fetchRequest: NSFetchRequest<NSFetchRequestResult> = NSFetchRequest(entityName: entityName)
+        var count: Int = 0
+        do {
+            count = try context.count(for: fetchRequest)
+        } catch let error {
+            toLog(error: .contextExecute(error))
+        }
+        return count
     }
     
 }
