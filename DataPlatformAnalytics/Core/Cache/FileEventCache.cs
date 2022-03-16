@@ -75,42 +75,60 @@ namespace SberGames.DataPlatform.Core
             }
         }
 
+        // Функция чтения сохраненных файлов 
         private async void LoadSavedData(string directoryPath)
         {
+            // получаем список кэш-файлов
             List<KeyValuePair<string, string>> files = GetCacheFiles(directoryPath);
             
+            // читаем из него список событий
             var result = await Task.Run(() => ReadCache(files));
 
+            // добавляем события в кэш 
             foreach (var eventData in result)
             {
-                cache.Add(eventData.Key, eventData.Value);
+                Add(eventData.Key, eventData.Value);
             }
+
+            //удаляем старые файлы
+            RemoveFiles(files);
             
             OnUnsentEventsLoaded?.Invoke();
+        }
+
+
+        private void RemoveFiles(List<KeyValuePair<string, string>> files)
+        {
+            foreach (var filePair in files)
+            {
+                File.Delete(filePair.Key);
+                File.Delete(filePair.Value);
+            }
         }
 
         private Dictionary<string, string> ReadCache(List<KeyValuePair<string, string>> files)
         {
             Dictionary<string, string> localCache = new Dictionary<string, string>();
-            
+
+            List<string> sentEventAll = new List<string>();
+
             foreach (var filePair in files)
             {
-                var sentEventIds = ReadSentEventIds(filePair.Key);
-                
-                if (!ReadUnsentEvents(filePair.Value, sentEventIds, ref localCache))
-                {
-                    // all events from this file have been sent
-                    File.Delete(filePair.Key);
-                    File.Delete(filePair.Value);
-                }
+                    var sentEventIds = ReadSentEventIds(filePair.Key);
+                    sentEventAll.AddRange(sentEventIds);
+            }
+
+            foreach (var filePair in files)
+            {
+                List<string> sentEventIds = ReadSentEventIds(filePair.Key);
+                ReadUnsentEvents(filePair.Value, sentEventAll, ref localCache);
             }
 
             return localCache;
         }
 
-        private bool ReadUnsentEvents(string filePath, List<string> sentEventIds, ref Dictionary<string, string> localCache)
+        private void ReadUnsentEvents(string filePath, List<string> sentEventIds, ref Dictionary<string, string> localCache)
         {
-            bool unsentEventsFound = false;
             var eventsReader = new StreamReader(filePath);
 
             while (!eventsReader.EndOfStream)
@@ -122,13 +140,10 @@ namespace SberGames.DataPlatform.Core
                 {
                     var eventData = eventLine.Remove(0, eventId.Length + 1);
                     localCache.Add(eventId, eventData);
-                    unsentEventsFound = true;
                 }
             }
 
             eventsReader.Close();
-
-            return unsentEventsFound;
         }
         
         private List<KeyValuePair<string, string>> GetCacheFiles(string directoryPath)
