@@ -100,6 +100,13 @@ namespace SberGames.DataPlatform.Core
             {
                 sendingErrorCountFromLastSuccess = 0;
                 eventCache.Remove(eventId);
+
+                // ???????? ?? ?????????????? ???????
+                int unsentEventsCount = eventCache.UnsentEvents().Count();
+                if (unsentEventsCount > 1)
+                {
+                    StartResendProcess();
+                }
             }
             else
             {
@@ -158,15 +165,12 @@ namespace SberGames.DataPlatform.Core
         {
             if (eventCache != null && eventCache.UnsentEvents().Count() > 0)
             {
-                List<string> eventIds = null;
-                List<string> eventDatas = null;
+                List<string> eventIds = new List<string>();
+                List<string> eventDatas = new List<string>();
 
                 var enumerator = eventCache.UnsentEvents().GetEnumerator();
                 while (enumerator.MoveNext())
                 {
-                    eventIds = new List<string>();
-                    eventDatas = new List<string>();
-                
                     if (!locked.Contains(enumerator.Current.Key))
                     {
                         eventIds.Add(enumerator.Current.Key);
