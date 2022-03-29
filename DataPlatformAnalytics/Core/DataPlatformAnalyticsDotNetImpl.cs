@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -38,6 +37,7 @@ namespace SberGames.DataPlatform.Core
             eventBuilder = new DefaultEventBuilder();
 
             StartResendProcess();
+            StartSession();
         }
 
         public void IsGetDeviceId(bool isGet)
@@ -45,7 +45,7 @@ namespace SberGames.DataPlatform.Core
             eventBuilder.IsGetDeviceId(isGet);
         }
 
-        public void StartSession()
+        private void StartSession()
         {
             sendingErrorCountFromLastSuccess = 0;
             
@@ -105,8 +105,7 @@ namespace SberGames.DataPlatform.Core
             {
                 sendingErrorCountFromLastSuccess = 0;
                 eventCache.Remove(eventId);
-
-                // ???????? ?? ?????????????? ???????
+                
                 int unsentEventsCount = eventCache.UnsentEvents().Count();
                 if (unsentEventsCount > 1)
                 {
