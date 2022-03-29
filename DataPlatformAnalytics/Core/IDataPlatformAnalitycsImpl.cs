@@ -1,6 +1,3 @@
-using SberGames.DataPlatform;
-using UnityEngine;
-using SberGames.DataPlatform.Core.Net;
 using System;
 
 namespace SberGames.DataPlatform.Core
@@ -12,8 +9,6 @@ namespace SberGames.DataPlatform.Core
         void RemoveUserProperty(string key);
 
         void SendEvent(EventData eventData);
-
-        void StartSession();
 
         void IsGetDeviceId(bool isGet);
     }
