@@ -172,21 +172,26 @@ namespace SberGames.DataPlatform.Core
                 List<string> eventIds = new List<string>();
                 List<string> eventDatas = new List<string>();
 
-                var enumerator = eventCache.UnsentEvents().GetEnumerator();
-                while (enumerator.MoveNext())
+                var events = eventCache.UnsentEvents();
+                lock (events)
                 {
-                    if (!locked.Contains(enumerator.Current.Key))
+                    var enumerator = events.GetEnumerator();
+                    while (enumerator.MoveNext())
                     {
-                        eventIds.Add(enumerator.Current.Key);
-                        eventDatas.Add(enumerator.Current.Value);
-
-                        if (eventIds.Count() >= MaxEventAtOnce)
+                        if (!locked.Contains(enumerator.Current.Key))
                         {
-                            break;
+                            eventIds.Add(enumerator.Current.Key);
+                            eventDatas.Add(enumerator.Current.Value);
+
+                            if (eventIds.Count() >= MaxEventAtOnce)
+                            {
+                                break;
+                            }
                         }
                     }
+                    enumerator.Dispose();
                 }
-                enumerator.Dispose();
+
 
                 if (eventIds != null && eventIds.Count > 0)
                 {
