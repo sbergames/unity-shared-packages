@@ -44,21 +44,31 @@ namespace SberGames.DataPlatform.Core
 
         public void Add(string evetnId, string eventData)
         {
-            cache.Add(evetnId, eventData);
+            lock (cache)
+            {
+                cache.Add(evetnId, eventData);
+            }
+
             cacheWriter.WriteLine(evetnId + Delimiter + eventData);
             currentCacheFileUnsentEventCount++;
         }
 
         public void Remove(string eventId)
         {
-            cache.Remove(eventId);
+            lock (cache)
+            {
+                cache.Remove(eventId);
+            }
             sentWriter.WriteLine(eventId);
             currentCacheFileUnsentEventCount--;
         }
 
         public IEnumerable<KeyValuePair<string, string>> UnsentEvents()
         {
-            return cache;
+            lock (cache)
+            {
+                return cache;
+            }
         }
         
         public void Dispose()
